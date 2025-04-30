@@ -1,3 +1,4 @@
+using Cinemachine;
 using System.Collections;
 using UnityEngine;
 
@@ -91,6 +92,7 @@ public class AdvancedPlayerController : MonoBehaviour
         Cursor.visible = false;
 
         characterAnimator = this.transform.Find("Player").GetComponent<Animator>();
+        composer = virtualCamera.GetCinemachineComponent<CinemachineComposer>();
     }
 
     /// <summary>
@@ -297,7 +299,8 @@ public class AdvancedPlayerController : MonoBehaviour
     #endregion
 
     #region 视角控制
-
+    public CinemachineVirtualCamera virtualCamera;
+    private CinemachineComposer composer;
     /// <summary>
     /// 处理鼠标视角旋转
     /// 仅在按住右键时生效
@@ -308,11 +311,18 @@ public class AdvancedPlayerController : MonoBehaviour
 
         // 获取鼠标增量输入
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
+        float mouseY = Input.GetAxis("Mouse Y") * 1 * Time.deltaTime;
 
         // 水平旋转（绕Y轴旋转角色）
         transform.Rotate(Vector3.up * mouseX);
 
+        float newScreenY = composer.m_ScreenY + mouseY;
+
+        // 限制在0.4到0.7之间
+        newScreenY = Mathf.Clamp(newScreenY, 0.4f, 0.7f);
+
+        // 应用限制后的值
+        composer.m_ScreenY = newScreenY;
         //// 垂直旋转（绕X轴旋转摄像机）
         //verticalRotation -= mouseY; // 使用减号使鼠标移动方向符合直觉
         //verticalRotation = Mathf.Clamp(verticalRotation, minLookAngle, maxLookAngle);
