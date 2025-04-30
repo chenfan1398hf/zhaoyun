@@ -14,6 +14,7 @@ public class AdvancedPlayerController : MonoBehaviour
     [Header("移动参数")]
     [Tooltip("基础移动速度（米/秒）")]
     [SerializeField] private float moveSpeed = 6f;
+    private float oldMoveSpeed = 0f;
 
     [Tooltip("空中移动速度乘数（0-1）")]
     [SerializeField] private float airMultiplier = 0.4f;
@@ -53,7 +54,8 @@ public class AdvancedPlayerController : MonoBehaviour
         ForwardRight,
         Backward,
         Left,
-        Right
+        Right,
+        Attack = 30
     }
     [SerializeField] 
     private Animator characterAnimator;
@@ -111,41 +113,53 @@ public class AdvancedPlayerController : MonoBehaviour
     {
         MovePlayer();
     }
-
+    private bool isAttack = false;
     private void HandleAnimation()
     {
-        // 优先检测组合按键
-        if (Input.GetKey(KeyCode.W))
+        if (isAttack)
         {
-            if (Input.GetKey(KeyCode.A))
-            {
-                SetAnimationState(MoveAnimationState.ForwardLeft);
-            }
-            else if (Input.GetKey(KeyCode.D))
-            {
-                SetAnimationState(MoveAnimationState.ForwardRight);
-            }
-            else
-            {
-                SetAnimationState(MoveAnimationState.Forward);
-            }
+            return;
         }
-        else if (Input.GetKey(KeyCode.S))
+        if (Input.GetMouseButton(0)) // 按住左键持续触发攻击
         {
-            SetAnimationState(MoveAnimationState.Backward);
-        }
-        else if (Input.GetKey(KeyCode.A))
-        {
-            SetAnimationState(MoveAnimationState.Left);
-        }
-        else if (Input.GetKey(KeyCode.D))
-        {
-            SetAnimationState(MoveAnimationState.Right);
+            SetAnimationState(MoveAnimationState.Attack);
         }
         else
         {
-            SetAnimationState(MoveAnimationState.Idle);
+            // 优先检测组合按键
+            if (Input.GetKey(KeyCode.W))
+            {
+                if (Input.GetKey(KeyCode.A))
+                {
+                    SetAnimationState(MoveAnimationState.ForwardLeft);
+                }
+                else if (Input.GetKey(KeyCode.D))
+                {
+                    SetAnimationState(MoveAnimationState.ForwardRight);
+                }
+                else
+                {
+                    SetAnimationState(MoveAnimationState.Forward);
+                }
+            }
+            else if (Input.GetKey(KeyCode.S))
+            {
+                SetAnimationState(MoveAnimationState.Backward);
+            }
+            else if (Input.GetKey(KeyCode.A))
+            {
+                SetAnimationState(MoveAnimationState.Left);
+            }
+            else if (Input.GetKey(KeyCode.D))
+            {
+                SetAnimationState(MoveAnimationState.Right);
+            }
+            else
+            {
+                SetAnimationState(MoveAnimationState.Idle);
+            }
         }
+        
 
         UpdateAnimatorParameters();
     }
@@ -161,6 +175,14 @@ public class AdvancedPlayerController : MonoBehaviour
         // 仅在状态变化时更新
         if (currentAnimState != previousAnimState)
         {
+            if (previousAnimState >= MoveAnimationState.Attack)
+            {
+                isAttack = true;
+                oldMoveSpeed = moveSpeed;
+                moveSpeed = 0;
+                rb.velocity = Vector3.zero;
+                this.Invoke("IsAttack", 1.2f);
+            }
             float number = (float)currentAnimState / 10;
             characterAnimator.SetFloat("Blend", number);
             Debug.Log("currentAnimState=" + number);
@@ -169,9 +191,12 @@ public class AdvancedPlayerController : MonoBehaviour
             //characterAnimator.Update(0);
             previousAnimState = currentAnimState;
         }
-      
-
     }
+    public void IsAttack()
+    {
+        isAttack = false;
+        moveSpeed = oldMoveSpeed;
+    }    
 
     #endregion
 
@@ -183,6 +208,7 @@ public class AdvancedPlayerController : MonoBehaviour
     /// </summary>
     void GetInput()
     {
+       
         // 获取原始输入值（-1到1）
         float horizontal = Input.GetAxisRaw("Horizontal");
         float vertical = Input.GetAxisRaw("Vertical");
@@ -199,6 +225,10 @@ public class AdvancedPlayerController : MonoBehaviour
     /// </summary>
     void MovePlayer()
     {
+        if (isAttack)
+        {
+            return;
+        }
         if (isDodging) return; // 闪避时禁用常规移动
 
         // 计算当前有效移动速度
