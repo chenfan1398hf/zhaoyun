@@ -51,6 +51,8 @@ public class GameManager :MonoSingleton<GameManager>
     private void Start()
     {
         this.InvokeRepeating("CheckTime", 0, 0.1f);
+        InitData();
+        BeginGame();
     }
 
     void CheckTime()
@@ -328,5 +330,85 @@ public class GameManager :MonoSingleton<GameManager>
             }
         }
         return allGameObjects.ToArray();
+    }
+
+    public GameObject playerObj;
+    private GameObject map1;
+    private GameObject map2;
+    private GameObject map3;
+    public GameObject beginPanel;
+    public GameObject gamePanel;
+    public GameObject endPanel;
+    public bool isBeginLevel = false;
+    private MusicManager musicManager;
+
+    //初始化数据
+    public void InitData()
+    {
+        map1 = GameObject.Find("Map1").gameObject;
+        map2 = GameObject.Find("Map2").gameObject;
+        map3 = GameObject.Find("Map3").gameObject;
+        endPanel.SetActive(false);
+        musicManager = new MusicManager();
+    }
+    //开始游戏
+    public void BeginGame()
+    {
+        beginPanel.SetActive(true);
+        isBeginLevel = true;
+        musicManager.PlayBkMusic("开始界面音乐");
+    }
+    //开始关卡
+    public void BeginLevel()
+    {
+        ChangeLevel();
+        beginPanel.SetActive(false);
+        musicManager.PlayBkMusic("背景音乐");
+    }
+    //关卡跳转
+    public void ChangeLevel()
+    {
+        Vector3 vector3 = Vector3.zero;
+        if (playerData.playerLevel == 1)
+        {
+            map1.gameObject.SetActive(true);
+            map2.gameObject.SetActive(false);
+            map3.gameObject.SetActive(false);
+            vector3 = map1.transform.Find("biaoji").transform.position;
+
+        }
+        else if (playerData.playerLevel == 2)
+        {
+            map1.gameObject.SetActive(false);
+            map2.gameObject.SetActive(true);
+            map3.gameObject.SetActive(false);
+            vector3 = map2.transform.Find("biaoji").transform.position;
+        }
+        else if (playerData.playerLevel == 3)
+        {
+            map1.gameObject.SetActive(false);
+            map2.gameObject.SetActive(false);
+            map3.gameObject.SetActive(true);
+            vector3 = map3.transform.Find("biaoji").transform.position;
+        }
+        playerObj.transform.position = vector3;
+    }
+    //打开结束面板
+    public void OpenEndPanel()
+    {
+        endPanel.SetActive(true);
+    }
+    public void EndGame()
+    {
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+            Application.Quit();
+#endif
+    }
+    public void ChangeAudio(float _value)
+    {
+        musicManager.ChangeBkValue(_value);
+        musicManager.ChangeSoundValue(_value);
     }
 }

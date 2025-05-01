@@ -56,6 +56,7 @@ public class AdvancedPlayerController : MonoBehaviour
         Backward,
         Left,
         Right,
+        Jump,
         Attack = 30
     }
     [SerializeField] 
@@ -88,8 +89,8 @@ public class AdvancedPlayerController : MonoBehaviour
         rb.freezeRotation = true; // 锁定物理旋转
 
         // 锁定鼠标到屏幕中心
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        //Cursor.lockState = CursorLockMode.Locked;
+        //Cursor.visible = false;
 
         characterAnimator = this.transform.Find("Player").GetComponent<Animator>();
         composer = virtualCamera.GetCinemachineComponent<CinemachineComposer>();
@@ -100,12 +101,15 @@ public class AdvancedPlayerController : MonoBehaviour
     /// </summary>
     void Update()
     {
-        GroundCheck();       // 地面检测
-        GetInput();          // 获取输入
-        HandleJump();       // 处理跳跃
-        HandleDodge();       // 处理闪避
-        HandleCameraRotation(); // 控制视角
-        HandleAnimation(); // 新增动画处理
+        if (GameManager.instance.isBeginLevel)
+        {
+            GroundCheck();       // 地面检测
+            GetInput();          // 获取输入
+            HandleJump();       // 处理跳跃
+            HandleDodge();       // 处理闪避
+            HandleCameraRotation(); // 控制视角
+            HandleAnimation(); // 新增动画处理
+        }
     }
 
     /// <summary>
@@ -122,9 +126,21 @@ public class AdvancedPlayerController : MonoBehaviour
         {
             return;
         }
+        if (GameManager.instance.isBeginLevel == false)
+        {
+            return;
+        }
         if (Input.GetMouseButton(0)) // 按住左键持续触发攻击
         {
             SetAnimationState(MoveAnimationState.Attack);
+        }
+        else if (Input.GetKey(KeyCode.Escape))
+        {
+            GameManager.instance.OpenEndPanel();
+        }
+        else if (Input.GetKey(KeyCode.Space))
+        {
+            SetAnimationState(MoveAnimationState.Jump);
         }
         else
         {
@@ -185,6 +201,13 @@ public class AdvancedPlayerController : MonoBehaviour
                 rb.velocity = Vector3.zero;
                 this.Invoke("IsAttack", 1.2f);
             }
+            else if (previousAnimState == MoveAnimationState.Jump)
+            {
+                characterAnimator.SetBool("Jumo",true);
+                this.Invoke("JumpEnd", 0.5f);
+                previousAnimState = currentAnimState;
+                return;
+            }
             float number = (float)currentAnimState / 10;
             characterAnimator.SetFloat("Blend", number);
             Debug.Log("currentAnimState=" + number);
@@ -198,7 +221,11 @@ public class AdvancedPlayerController : MonoBehaviour
     {
         isAttack = false;
         moveSpeed = oldMoveSpeed;
-    }    
+    }
+    public void JumpEnd()
+    {
+        characterAnimator.SetBool("Jumo", false);
+    }
 
     #endregion
 
@@ -251,11 +278,11 @@ public class AdvancedPlayerController : MonoBehaviour
     /// </summary>
     void HandleJump()
     {
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
-        {
-            // 使用冲击力模式施加瞬时力
-            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-        }
+        //if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
+        //{
+        //    // 使用冲击力模式施加瞬时力
+        //    rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+        //}
     }
 
     #endregion

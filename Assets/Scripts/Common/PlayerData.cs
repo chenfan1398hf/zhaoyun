@@ -33,6 +33,8 @@ public class PlayerData
 
     public Dictionary<String, TaskInfo> palyerTaskDic = new Dictionary<String, TaskInfo>();                         //任务数据
 
+    public int playerLevel = 1;                         //当前关卡
+
 
 
 
