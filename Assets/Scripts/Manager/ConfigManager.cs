@@ -24,3 +24,27 @@ public class ConfigManager
     //    return mLanguageCfg.Find((item) => item.key == key);
     //}
 }
+
+public class GameData
+{
+    public int Hp;
+    public int MaxHp;
+    public int Attack;
+    public int Type;            //1英雄 2Boss
+    public bool Live = true;          //true活着 false 死亡
+
+    public void AddHp(int _number)
+    {
+        Hp += _number;
+        if (Hp > MaxHp)
+        {
+            Hp = MaxHp;
+        }
+        if (Hp <= 0)
+        {
+            Hp = 0;
+            Live = false;
+        }
+    }
+    
+}

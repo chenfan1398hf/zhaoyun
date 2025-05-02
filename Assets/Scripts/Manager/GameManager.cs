@@ -61,7 +61,7 @@ public class GameManager :MonoSingleton<GameManager>
 
         if (TimeNumber % 10 == 0)
         {
-       
+            ShowRenwu();
         }
         if (TimeNumber % 20 == 0)
         {
@@ -396,7 +396,7 @@ public class GameManager :MonoSingleton<GameManager>
     //打开结束面板
     public void OpenEndPanel()
     {
-        endPanel.SetActive(true);
+        endPanel.SetActive(!endPanel.activeSelf);
     }
     public void EndGame()
     {
@@ -410,5 +410,29 @@ public class GameManager :MonoSingleton<GameManager>
     {
         musicManager.ChangeBkValue(_value);
         musicManager.ChangeSoundValue(_value);
+    }
+    //刷新显示英雄血量
+    public void UpdateHeroHp(GameData _gameData)
+    {
+        gamePanel.transform.Find("Image/Hp/Hp").GetComponent<Image>().fillAmount = (float)_gameData.Hp / (float)_gameData.MaxHp;
+        gamePanel.transform.Find("Image/Hp/HpNuber").GetComponent<Text>().text = _gameData.Hp.ToString();
+    }
+    //刷新任务
+    public void ShowRenwu()
+    {
+        gamePanel.transform.Find("Image1/Text (Legacy) (1)").GetComponent<Text>().text = GetRenwuMsg();
+    }
+    public string GetRenwuMsg()
+    {
+        string msg = string.Empty;
+        if (playerData.playerRenWuIndex == 1)
+        {
+            msg = "找NPC接取第一个任务";
+        }
+        else if (true)
+        {
+
+        }
+        return msg;
     }
 }

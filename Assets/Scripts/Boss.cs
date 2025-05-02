@@ -1,5 +1,7 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UI;
 
 public class Boss : MonoBehaviour
 {
@@ -12,6 +14,7 @@ public class Boss : MonoBehaviour
     public float patrolSpeed = 2f;     // 返回速度
     public float attackCooldown = 2f;  // 攻击间隔
     public float giveUpDistance = 15f; // 放弃追击距离
+    public float attackRadius = 0.5f; // 攻击范围半径
 
     [Header("References")]
     public Transform target;           // 目标对象
@@ -23,12 +26,16 @@ public class Boss : MonoBehaviour
     private float lastAttackTime;      // 上次攻击时间
     private bool isDead;               // 是否死亡
 
+    [SerializeField]
+    public GameData BossGameData = new GameData();
+
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
         homePosition = transform.position;
         currentState = BossState.Idle;
         agent.speed = patrolSpeed;
+        InitGameData();
     }
 
     void Update()
@@ -70,7 +77,7 @@ public class Boss : MonoBehaviour
                 if (Time.time - lastAttackTime >= attackCooldown)
                 {
                     // 执行攻击
-                    PerformAttack();
+                    StartCoroutine(PerformAttack());
                     lastAttackTime = Time.time;
                 }
 
@@ -134,12 +141,35 @@ public class Boss : MonoBehaviour
         transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
     }
 
-    void PerformAttack()
+    IEnumerator PerformAttack()
     {
         // 这里触发攻击动画和实际攻击逻辑
-        animator.SetTrigger("Attack");
-        // 实际伤害逻辑需要根据你的游戏实现
-        Debug.Log("BOSS发动攻击！");
+        animator.SetInteger("Attack",1);
+        yield return new WaitForSeconds(0.5f);
+
+        Collider[] hitColliders = Physics.OverlapSphere(transform.Find("attackTag").position, attackRadius);
+        bool hitPlayer = false;
+
+        foreach (var collider in hitColliders)
+        {
+            if (collider.CompareTag("Player"))
+            {
+                AdvancedPlayerController playerHealth = collider.GetComponent<AdvancedPlayerController>();
+                if (playerHealth != null)
+                {
+                    playerHealth.heroGameData.AddHp(-BossGameData.Attack);
+                    GameManager.instance.UpdateHeroHp(playerHealth.heroGameData);
+                    playerHealth.HitAni();
+                    if (playerHealth.heroGameData.Live == false)
+                    {
+                        playerHealth.Dead();
+                    }
+                    Debug.Log("击中玩家！"+ BossGameData.Attack);
+                }
+            }
+        }
+        yield return new WaitForSeconds(0.3f);
+        animator.SetInteger("Attack", 0);
     }
 
     void UpdateAnimations()
@@ -155,6 +185,8 @@ public class Boss : MonoBehaviour
         Gizmos.DrawWireSphere(transform.position, attackRange);
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, chaseRange);
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(transform.Find("attackTag").position, attackRadius);
     }
 
     // 死亡处理
@@ -164,5 +196,29 @@ public class Boss : MonoBehaviour
         agent.isStopped = true;
         animator.SetTrigger("Die");
         // 其他死亡逻辑...
+    }
+    //初始化数据
+    public void InitGameData()
+    {
+        BossGameData.Hp = 1000;
+        BossGameData.MaxHp = 1000;
+        BossGameData.Attack = 100;
+        BossGameData.Type = 2;
+    }
+    public void HitAni()
+    {
+        animator.Play("hit_back");
+        BossDead();
+    }
+    public void UpdateHp()
+    {
+        this.transform.Find("CanvasHp/Image (1)").GetComponent<Image>().fillAmount = (float)BossGameData.Hp / BossGameData.MaxHp;
+    }
+    public void BossDead()
+    {
+        if (BossGameData.Live == false)
+        {
+            Destroy(this.gameObject);
+        }
     }
 }

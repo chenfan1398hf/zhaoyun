@@ -57,6 +57,7 @@ public class AdvancedPlayerController : MonoBehaviour
         Left,
         Right,
         Jump,
+        Hit,
         Attack = 30
     }
     [SerializeField] 
@@ -75,6 +76,9 @@ public class AdvancedPlayerController : MonoBehaviour
     private bool isGrounded;         // 是否在地面
     private float lastDodgeTime;     // 上次闪避时间
     private bool isDodging;          // 是否处于闪避状态
+    private bool isHit = false;
+    [SerializeField]
+    public GameData heroGameData = new GameData();
 
     #endregion
 
@@ -94,6 +98,11 @@ public class AdvancedPlayerController : MonoBehaviour
 
         characterAnimator = this.transform.Find("Player").GetComponent<Animator>();
         composer = virtualCamera.GetCinemachineComponent<CinemachineComposer>();
+    }
+
+    private void Start()
+    {
+        InitGameData();
     }
 
     /// <summary>
@@ -130,11 +139,15 @@ public class AdvancedPlayerController : MonoBehaviour
         {
             return;
         }
+        if (isHit)
+        {
+            return;
+        }
         if (Input.GetMouseButton(0)) // 按住左键持续触发攻击
         {
             SetAnimationState(MoveAnimationState.Attack);
         }
-        else if (Input.GetKey(KeyCode.Escape))
+        else if (Input.GetKeyUp(KeyCode.Escape))
         {
             GameManager.instance.OpenEndPanel();
         }
@@ -199,7 +212,7 @@ public class AdvancedPlayerController : MonoBehaviour
                 oldMoveSpeed = moveSpeed;
                 moveSpeed = 0;
                 rb.velocity = Vector3.zero;
-                this.Invoke("IsAttack", 1.2f);
+                StartCoroutine(IsAttack());
             }
             else if (previousAnimState == MoveAnimationState.Jump)
             {
@@ -217,8 +230,38 @@ public class AdvancedPlayerController : MonoBehaviour
             previousAnimState = currentAnimState;
         }
     }
-    public void IsAttack()
+    public IEnumerator IsAttack()
     {
+        yield return new WaitForSeconds(0.2f);
+
+        Collider[] hitColliders = Physics.OverlapSphere(transform.Find("attackTag").position, 0.5f);
+        bool hitPlayer = false;
+
+        foreach (var collider in hitColliders)
+        {
+            if (collider != null)
+            {
+                if (collider.CompareTag("Boss"))
+                {
+                    for (int i = 0; i < 2; i++)
+                    {
+                        if (collider != null)
+                        {
+                            Boss boss = collider.GetComponent<Boss>();
+                            if (boss != null)
+                            {
+                                boss.BossGameData.AddHp(-heroGameData.Attack);
+                                boss.HitAni();
+                                boss.UpdateHp();
+                            }
+                            Debug.Log("打击boss");
+                        }
+                        yield return new WaitForSeconds(0.6f);
+                    }
+                }
+            }
+        }
+        yield return new WaitForSeconds(1.0f);
         isAttack = false;
         moveSpeed = oldMoveSpeed;
     }
@@ -382,4 +425,23 @@ public class AdvancedPlayerController : MonoBehaviour
     }
 
     #endregion
+
+    public void InitGameData()
+    {
+        heroGameData.Hp = 1000;
+        heroGameData.MaxHp = 1000;
+        heroGameData.Attack = 200;
+        heroGameData.Type = 1;
+        GameManager.instance.UpdateHeroHp(heroGameData);
+    }
+    public void HitAni()
+    {
+        SetAnimationState(MoveAnimationState.Hit);
+        //UpdateAnimatorParameters();
+        characterAnimator.Play("hit_back");
+    }
+    public void Dead()
+    {
+        characterAnimator.Play("dead01");
+    }
 }
