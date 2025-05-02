@@ -225,6 +225,7 @@ public class Boss : MonoBehaviour
             if (isBool)
             {
                 Debug.Log("Í¨¹Ø");
+                GameManager.instance.nextPanel.SetActive(true);
             }
             else
             {
@@ -232,4 +233,5 @@ public class Boss : MonoBehaviour
             }
         }
     }
+
 }

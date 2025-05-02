@@ -340,6 +340,7 @@ public class GameManager :MonoSingleton<GameManager>
     public GameObject gamePanel;
     public GameObject endPanel;
     public GameObject taskPanel;
+    public GameObject nextPanel;
     public bool isBeginLevel = false;
     private MusicManager musicManager;
     public List<GameObject> bossList = new List<GameObject>();
@@ -352,6 +353,7 @@ public class GameManager :MonoSingleton<GameManager>
         map3 = GameObject.Find("Map3").gameObject;
         endPanel.SetActive(false);
         taskPanel.SetActive(false);
+        nextPanel.SetActive(false);
         musicManager = new MusicManager();
     }
     //开始游戏
@@ -470,5 +472,12 @@ public class GameManager :MonoSingleton<GameManager>
             return true;
         }
         return false;
+    }
+    //前往下一关
+    public void NextLevel()
+    {
+        playerData.playerLevel++;
+        ChangeLevel();
+        nextPanel.SetActive(false);
     }
 }
