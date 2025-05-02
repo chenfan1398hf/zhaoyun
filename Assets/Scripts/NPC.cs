@@ -43,30 +43,18 @@ public class NPC : MonoBehaviour
     void EnterInteractionRange()
     {
         isPlayerInRange = true;
-        if (interactionPrompt != null)
-        {
-            interactionPrompt.SetActive(true);
-        }
+        GameManager.instance.OpenTaskPanel(true);
     }
 
     void ExitInteractionRange()
     {
         isPlayerInRange = false;
-        if (interactionPrompt != null)
-        {
-            interactionPrompt.SetActive(false);
-        }
+        GameManager.instance.OpenTaskPanel(false);
     }
 
     void TriggerInteraction()
     {
-        // 触发交互事件
-        onInteracted.Invoke();
-
-        // 关闭提示（可选）
-        ExitInteractionRange();
-
-        Debug.Log("NPC感知到玩家的交互请求！");
+        GameManager.instance.AddTask(2);
     }
 
     // 可视化交互范围

@@ -15,6 +15,7 @@ public class Boss : MonoBehaviour
     public float attackCooldown = 2f;  // 攻击间隔
     public float giveUpDistance = 15f; // 放弃追击距离
     public float attackRadius = 0.5f; // 攻击范围半径
+    public int LevelNumber = 1;
 
     [Header("References")]
     public Transform target;           // 目标对象
@@ -218,7 +219,17 @@ public class Boss : MonoBehaviour
     {
         if (BossGameData.Live == false)
         {
-            Destroy(this.gameObject);
+            //Destroy(this.gameObject);
+            this.gameObject.SetActive(false);
+            bool isBool = GameManager.instance.CheckBossDeath();
+            if (isBool)
+            {
+                Debug.Log("通关");
+            }
+            else
+            {
+                Debug.Log("为通关");
+            }
         }
     }
 }

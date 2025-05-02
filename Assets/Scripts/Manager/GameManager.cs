@@ -339,8 +339,10 @@ public class GameManager :MonoSingleton<GameManager>
     public GameObject beginPanel;
     public GameObject gamePanel;
     public GameObject endPanel;
+    public GameObject taskPanel;
     public bool isBeginLevel = false;
     private MusicManager musicManager;
+    public List<GameObject> bossList = new List<GameObject>();
 
     //初始化数据
     public void InitData()
@@ -349,6 +351,7 @@ public class GameManager :MonoSingleton<GameManager>
         map2 = GameObject.Find("Map2").gameObject;
         map3 = GameObject.Find("Map3").gameObject;
         endPanel.SetActive(false);
+        taskPanel.SetActive(false);
         musicManager = new MusicManager();
     }
     //开始游戏
@@ -429,10 +432,43 @@ public class GameManager :MonoSingleton<GameManager>
         {
             msg = "找NPC接取第一个任务";
         }
-        else if (true)
+        else if (playerData.playerRenWuIndex == 2)
         {
-
+            msg = "击败山贼，保卫村庄";
         }
         return msg;
+    }
+    public void OpenTaskPanel(bool isBool)
+    {
+        taskPanel.SetActive(isBool);
+    }
+    public void AddTask(int _number)
+    {
+        playerData.playerRenWuIndex = _number;
+        ShowRenwu();
+    }
+    public bool CheckBossDeath()
+    {
+        int maxNumber = 0;
+        int liveNumber = 0;
+        for (int i = 0; i < bossList.Count; i++)
+        {
+            if (bossList[i].gameObject.GetComponent<Boss>().LevelNumber == playerData.playerLevel)
+            {
+                maxNumber++;
+            }
+        }
+        for (int i = 0; i < bossList.Count; i++)
+        {
+            if (bossList[i].gameObject.GetComponent<Boss>().BossGameData.Live == false)
+            {
+                liveNumber++;
+            }
+        }
+        if (liveNumber >= maxNumber)
+        {
+            return true;
+        }
+        return false;
     }
 }
