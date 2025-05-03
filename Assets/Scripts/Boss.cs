@@ -208,7 +208,7 @@ public class Boss : MonoBehaviour
     }
     public void HitAni()
     {
-        animator.Play("hit_back");
+        //animator.Play("hit_back");
         BossDead();
     }
     public void UpdateHp()

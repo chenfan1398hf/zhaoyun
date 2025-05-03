@@ -436,9 +436,9 @@ public class AdvancedPlayerController : MonoBehaviour
     }
     public void HitAni()
     {
-        SetAnimationState(MoveAnimationState.Hit);
-        //UpdateAnimatorParameters();
-        characterAnimator.Play("hit_back");
+        //SetAnimationState(MoveAnimationState.Hit);
+        ////UpdateAnimatorParameters();
+        //characterAnimator.Play("hit_back");
     }
     public void Dead()
     {
