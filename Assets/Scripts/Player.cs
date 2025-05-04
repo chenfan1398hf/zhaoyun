@@ -261,7 +261,7 @@ public class AdvancedPlayerController : MonoBehaviour
                 }
             }
         }
-        yield return new WaitForSeconds(1.0f);
+        yield return new WaitForSeconds(0.2f);
         isAttack = false;
         moveSpeed = oldMoveSpeed;
     }

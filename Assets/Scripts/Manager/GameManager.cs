@@ -362,6 +362,7 @@ public class GameManager :MonoSingleton<GameManager>
         beginPanel.SetActive(true);
         isBeginLevel = true;
         musicManager.PlayBkMusic("开始界面音乐");
+        ChangeWq(1);
     }
     //开始关卡
     public void BeginLevel()
@@ -388,6 +389,11 @@ public class GameManager :MonoSingleton<GameManager>
             map2.gameObject.SetActive(true);
             map3.gameObject.SetActive(false);
             vector3 = map2.transform.Find("biaoji").transform.position;
+            ChangeWq(2);
+            GameManager.instance.AddTask(3);
+            var obj = playerObj.GetComponent<AdvancedPlayerController>();
+            obj.heroGameData.AddHp(obj.heroGameData.MaxHp);
+            GameManager.instance.UpdateHeroHp(obj.heroGameData);
         }
         else if (playerData.playerLevel == 3)
         {
@@ -395,6 +401,11 @@ public class GameManager :MonoSingleton<GameManager>
             map2.gameObject.SetActive(false);
             map3.gameObject.SetActive(true);
             vector3 = map3.transform.Find("biaoji").transform.position;
+            ChangeWq(2);
+            GameManager.instance.AddTask(4);
+            var obj = playerObj.GetComponent<AdvancedPlayerController>();
+            obj.heroGameData.AddHp(obj.heroGameData.MaxHp);
+            GameManager.instance.UpdateHeroHp(obj.heroGameData);
         }
         playerObj.transform.position = vector3;
     }
@@ -436,7 +447,15 @@ public class GameManager :MonoSingleton<GameManager>
         }
         else if (playerData.playerRenWuIndex == 2)
         {
-            msg = "击败山贼，保卫村庄";
+            msg = "击败山贼，保卫村庄,任务奖励：武器龙胆亮银枪";
+        }
+        else if (playerData.playerRenWuIndex == 3)
+        {
+            msg = "博望坡之战初显身手，击败夏侯惇。";
+        }
+        else if (playerData.playerRenWuIndex == 4)
+        {
+            msg = "单骑七进七出救阿斗，击败夏侯恩。";
         }
         return msg;
     }
@@ -479,5 +498,21 @@ public class GameManager :MonoSingleton<GameManager>
         playerData.playerLevel++;
         ChangeLevel();
         nextPanel.SetActive(false);
+    }
+    //任务奖励武器切换
+    public GameObject wuqiobj1;
+    public GameObject wuqiobj2;
+    public void ChangeWq(int value)
+    {
+        if (value == 1)
+        {
+            wuqiobj1.SetActive(true);
+            wuqiobj2.SetActive(false);
+        }
+        else
+        {
+            wuqiobj1.SetActive(false);
+            wuqiobj2.SetActive(true);
+        }
     }
 }
