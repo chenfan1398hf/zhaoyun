@@ -226,6 +226,17 @@ public class Boss : MonoBehaviour
             {
                 Debug.Log("Í¨¹Ø");
                 GameManager.instance.nextPanel.SetActive(true);
+                if (GameManager.instance.playerData.playerLevel < 3)
+                {
+                    GameManager.instance.nextPanel.transform.Find("Button (Legacy)").gameObject.SetActive(true);
+                    GameManager.instance.nextPanel.transform.Find("Button (Legacy) (1)").gameObject.SetActive(false);
+                }
+                else
+                {
+                    GameManager.instance.nextPanel.transform.Find("Button (Legacy)").gameObject.SetActive(false);
+                    GameManager.instance.nextPanel.transform.Find("Button (Legacy) (1)").gameObject.SetActive(true);
+                }
+              
             }
             else
             {

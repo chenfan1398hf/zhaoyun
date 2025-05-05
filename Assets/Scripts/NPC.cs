@@ -55,6 +55,7 @@ public class NPC : MonoBehaviour
     void TriggerInteraction()
     {
         GameManager.instance.AddTask(2);
+        GameManager.instance.OpenTaskPanel(false);
     }
 
     // 可视化交互范围
