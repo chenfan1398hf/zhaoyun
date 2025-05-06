@@ -164,6 +164,7 @@ public class Boss : MonoBehaviour
                     if (playerHealth.heroGameData.Live == false)
                     {
                         playerHealth.Dead();
+                        GameManager.instance.EndGame();
                     }
                     Debug.Log("»÷ÖÐÍæ¼Ò£¡"+ BossGameData.Attack);
                 }
