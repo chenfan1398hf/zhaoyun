@@ -364,8 +364,16 @@ public class GameManager :MonoSingleton<GameManager>
         musicManager.PlayBkMusic("开始界面音乐");
         ChangeWq(1);
     }
+
     //开始关卡
     public void BeginLevel()
+    {
+        playerData.playerLevel = 1;
+        ChangeLevel();
+        beginPanel.SetActive(false);
+        musicManager.PlayBkMusic("背景音乐");
+    }
+    public void BeginLevel2()
     {
         ChangeLevel();
         beginPanel.SetActive(false);
